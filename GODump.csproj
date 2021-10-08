@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{334307BF-127A-4C02-918A-06443B9781C8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GODump</RootNamespace>
+    <AssemblyName>GODump</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- The common relative path to Hollow Knight on all platforms -->
+    <HKRelPath>/Steam/steamapps/common/Hollow%20Knight/</HKRelPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Set the path to the Hollow Knight folder -->
+    <HKPath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">$(home).local/share$(HKRelPath)</HKPath>
+    <HKPath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">$(home)/Library/Application Support$(HKRelPath)</HKPath>
+    <HKPath Condition="$(OS) == Windows_NT">$(MSBuildProgramFiles32)$(HKRelPath)</HKPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Set the path to HK's Managed folder -->
+    <ManagedPath>$(HKPath)hollow_knight_Data/Managed/</ManagedPath>
+    <!-- Set the path to the exported mods folder -->
+    <ExportPath>C:/HK/Mods/</ExportPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Dump.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="GODump.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SaveWav.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="SpriteDump.cs" />
+    <Compile Include="Structs.cs" />
+    <None Include="ReadMe.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedPath)Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="MMHOOK_Assembly-CSharp">
+      <HintPath>$(ManagedPath)MMHOOK_Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>$(ManagedPath)MonoMod.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="PlayMaker">
+      <HintPath>$(ManagedPath)PlayMaker.dll</HintPath>
+    </Reference>
+    <Reference Include="MMHOOK_PlayMaker">
+      <HintPath>$(ManagedPath)MMHOOK_PlayMaker.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedPath)UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(ManagedPath)UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedPath)UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(ManagedPath)UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(ManagedPath)UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(ManagedPath)Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)/Microsoft.CSharp.targets" />
+  <Target Name="CopyMod" AfterTargets="PostBuildEvent">
+    <RemoveDir Directories="$(ExportPath)$(TargetName)/" />
+    <MakeDir Directories="$(ExportPath)$(TargetName);$(ExportPath)$(TargetName)/zip" />
+    <MakeDir Condition="!Exists('$(ManagedPath)Mods/$(TargetName)')" Directories="$(ManagedPath)Mods/$(TargetName)" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ManagedPath)Mods/$(TargetName)" />
+    <Copy SourceFiles="$(TargetPath);ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportPath)$(TargetName)/zip/" />
+    <ZipDirectory SourceDirectory="$(ExportPath)$(TargetName)/zip/" DestinationFile="$(ExportPath)$(TargetName)/$(TargetName).zip" />
+    <RemoveDir Directories="$(ExportPath)/$(TargetName)/zip/" />
+    <GetFileHash Files="$(ExportPath)$(TargetName)/$(TargetName).zip" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="FilesWithHashes" />
+    </GetFileHash>
+    <WriteLinesToFile File="$(ExportPath)$(TargetName)/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
+    <!-- Start Hollow Knight -->
+    <Exec Command="steam steam://rungameid/367520" />
+  </Target>
+</Project>
