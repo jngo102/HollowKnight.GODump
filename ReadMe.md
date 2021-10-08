@@ -10,8 +10,8 @@ Dump game objects in **Hollow Knight** into individual sprites and audio clips. 
 3. Check the "Installed" checkbox next to  "Game Object Dump" from the mod list.
 
 # Manually
-1. Install the latest release of the [Modding API]( https://github.com/jngo102/HollowKnight.GODump/releases/ ) for Hollow Knight from GitHub. Installation instructions are in the ReadMe.
-2. Download the latest release of [GODump](  ) from GitHub.
+1. Install the latest release of the [Modding API]( https://github.com/hk-modding/api/releases ) for Hollow Knight from GitHub. Installation instructions are in the ReadMe.
+2. Download the latest release of [GODump]( https://github.com/jngo102/HollowKnight.GODump/releases ) from GitHub.
 3. Extract the zip to `Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/Mods/GODump`.
 
 
