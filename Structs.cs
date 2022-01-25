@@ -6,19 +6,19 @@ namespace GODump
     [Serializable]
     public class AnimationInfo
     {
-        private int _numFrames;
-        private float _fps;
-        private string _wrapMode;
-        private int _loopStart;
-        private string _collectionName;
+        public int numFrames;
+        public float fps;
+        public string wrapMode;
+        public int loopStart;
+        public string collectionName;
 
         public AnimationInfo(int numFrames, float fps, tk2dSpriteAnimationClip.WrapMode wrapMode, int loopStart, string collectionName)
         {
-            _numFrames = numFrames;
-            _fps = fps;
-            _wrapMode = wrapMode.ToString();
-            _loopStart = loopStart;
-            _collectionName = collectionName;
+            this.numFrames = numFrames;
+            this.fps = fps;
+            this.wrapMode = wrapMode.ToString();
+            this.loopStart = loopStart;
+            this.collectionName = collectionName;
         }
     }
 

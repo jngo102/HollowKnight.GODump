@@ -45,7 +45,7 @@ namespace GODump
         public static Texture2D SubTexture(this Texture2D texture, RectInt rect)
         {
             var outTexture = new Texture2D(rect.width, rect.height);
-            outTexture.SetPixels(texture.GetPixels(rect.x, rect.y, rect.width, rect.height));
+            outTexture.SetPixels(texture.Duplicate().GetPixels(rect.x, rect.y, rect.width, rect.height));
             outTexture.Apply();
             return outTexture;
         }

@@ -20,7 +20,7 @@ namespace GODump
 
         private tk2dSpriteAnimation[] _animations = { };
         private tk2dSpriteCollectionData[] _collections = { };
-        private Dictionary<GameObject, List<AudioClip>> _gameObjectsWithAudio = new();
+        private Dictionary<GameObject, List<AudioClip>> _gameObjectsWithAudio;
 
         private void Update()
         {
@@ -33,7 +33,9 @@ namespace GODump
                 _collections = Resources.FindObjectsOfTypeAll<tk2dSpriteCollectionData>().ToArray();
                 _animations = Resources.FindObjectsOfTypeAll<tk2dSpriteAnimation>().ToArray();
                 GODump.Settings.AnimationsToDump = string.Join("|", _animations.Select(animation => animation.name));
-                
+
+                _gameObjectsWithAudio = new();
+
                 foreach (GameObject go in FindObjectsOfType<GameObject>(true).Where(go => go.GetComponent<AudioSource>()))
                 {
                     bool skipIteration = false;
@@ -247,6 +249,7 @@ namespace GODump
                         {
                             spriteInfo.Add(frame.spriteId, x1, y1, uvPixelR.x, uvPixelR.y, uvPixelR.width, uvPixelR.height, collectionName, framePathRelative, flipped);
                         }
+
                         if (!File.Exists(framePath))
                         {
                             try
@@ -275,23 +278,23 @@ namespace GODump
                                 GODump.Instance.LogError("Could not subtexture: " + e);
                             }
                         }
+
                         DestroyImmediate(texture2D);
                     }
+
                     yield return new WaitForSeconds(0.5f);
 
-                    if (GODump.Settings.DumpAnimInfo && Directory.Exists(Path.Combine(_spritesPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name)) && clip.frames.Length > 0)
+                    if (GODump.Settings.DumpAnimInfo && clip.frames.Length > 0)
                     {
                         string animInfoPath = Path.Combine(_spritesPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, "AnimInfo.json");
-                        if (!File.Exists(animInfoPath))
+                        Directory.CreateDirectory(Path.GetDirectoryName(animInfoPath));
+                        var animInfo = new AnimationInfo(clip.frames.Length, clip.fps, clip.wrapMode, clip.loopStart, clip.frames[0].spriteCollection.spriteCollectionName);
+                        using (FileStream fileStream = File.Create(animInfoPath))
                         {
-                            var animInfo = new AnimationInfo(clip.frames.Length, clip.fps, clip.wrapMode, clip.loopStart, clip.frames[0].spriteCollection.spriteCollectionName);
-                            using (FileStream fileStream = File.Create(animInfoPath))
+                            using (StreamWriter streamWriter = new StreamWriter(fileStream))
                             {
-                                using (StreamWriter streamWriter = new StreamWriter(fileStream))
-                                {
-                                    string value = JsonConvert.SerializeObject(animInfo, Formatting.Indented);
-                                    streamWriter.Write(value);
-                                }
+                                string value = JsonConvert.SerializeObject(animInfo, Formatting.Indented);
+                                streamWriter.Write(value);
                             }
                         }
                     }
@@ -300,15 +303,13 @@ namespace GODump
                 if (GODump.Settings.DumpSpriteInfo)
                 {
                     string spriteInfoPath = Path.Combine(_spritesPath, animation.name, "0.Atlases", "SpriteInfo.json");
-                    if (!File.Exists(spriteInfoPath))
+                    Directory.CreateDirectory(Path.GetDirectoryName(spriteInfoPath));
+                    using (FileStream fileStream = File.Create(spriteInfoPath))
                     {
-                        using (FileStream fileStream = File.Create(spriteInfoPath))
+                        using (StreamWriter streamWriter = new StreamWriter(fileStream))
                         {
-                            using (StreamWriter streamWriter = new StreamWriter(fileStream))
-                            {
-                                string value = JsonConvert.SerializeObject(spriteInfo, Formatting.Indented);
-                                streamWriter.Write(value);
-                            }
+                            string value = JsonConvert.SerializeObject(spriteInfo, Formatting.Indented);
+                            streamWriter.Write(value);
                         }
                     }
                 }
