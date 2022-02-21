@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace  GODump
+namespace GODump
 {
     public class Dump : MonoBehaviour
     {
@@ -319,10 +319,12 @@ namespace  GODump
 
             GODump.Instance.Log($"End dumping {num} sprites.");
         }
-        public static IEnumerator DumpSpriteInUExplorer(tk2dSpriteAnimation animation,string dumppath )
+
+        /// Locate tk2dSpriteAnimation in UExplorer and use
+        /// GameManager.instance.StartCoroutine(GODump.Dump.DumpSpriteInUExplorer((tk2dSpriteAnimation)CurrentTarget,<dumpPath>)) 
+        /// to dump it by using Unity Explorer console;
+        public static IEnumerator DumpSpriteInUExplorer(tk2dSpriteAnimation animation, string dumpPath)
         {
-            /*locate tk2dSpriteAnimation in UExplorer and use{ GameManager.instance.StartCoroutine(GODump.Dump.DumpSpriteInUExplorer((tk2dSpriteAnimation)CurrentTarget,<dumppath>))} to dump it by using Unity Explorer console;
-             */
             int num = 0;
                 int i = 0;
                 var spriteInfo = new SpriteInfo();
@@ -362,10 +364,10 @@ namespace  GODump
                         Texture2D texture2D = ((Texture2D)texture).Duplicate();
 
                         string collectionName = frame.spriteCollection.spriteCollectionName;
-                        string atlasPath = Path.Combine(dumppath, animation.name, "0.Atlases", $"{collectionName}.png");
-                        string path1 = Path.Combine(dumppath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + "_position.png");
+                        string atlasPath = Path.Combine(dumpPath, animation.name, "0.Atlases", $"{collectionName}.png");
+                        string path1 = Path.Combine(dumpPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + "_position.png");
                         string framePathRelative = Path.Combine(animation.name, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + ".png");
-                        string framePath = Path.Combine(dumppath, framePathRelative);
+                        string framePath = Path.Combine(dumpPath, framePathRelative);
 
                         bool flipped = tk2dSpriteDefinition.flipped == tk2dSpriteDefinition.FlipMode.Tk2d;
 
