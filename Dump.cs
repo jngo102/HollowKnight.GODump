@@ -454,7 +454,7 @@ namespace GODump
 
                     if (GODump.Settings.DumpAnimInfo && clip.frames.Length > 0)
                     {
-                        string animInfoPath = Path.Combine(_spritesPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, "AnimInfo.json");
+                        string animInfoPath = Path.Combine(dumpPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, "AnimInfo.json");
                         Directory.CreateDirectory(Path.GetDirectoryName(animInfoPath));
                         var animInfo = new AnimationInfo(clip.frames.Length, clip.fps, clip.wrapMode, clip.loopStart, clip.frames[0].spriteCollection.spriteCollectionName);
                         using (FileStream fileStream = File.Create(animInfoPath))
@@ -470,7 +470,7 @@ namespace GODump
 
                 if (GODump.Settings.DumpSpriteInfo)
                 {
-                    string spriteInfoPath = Path.Combine(_spritesPath, animation.name, "0.Atlases", "SpriteInfo.json");
+                    string spriteInfoPath = Path.Combine(dumpPath, animation.name, "0.Atlases", "SpriteInfo.json");
                     Directory.CreateDirectory(Path.GetDirectoryName(spriteInfoPath));
                     using (FileStream fileStream = File.Create(spriteInfoPath))
                     {
