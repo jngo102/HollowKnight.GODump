@@ -22,6 +22,7 @@ Dump game objects in **Hollow Knight** into individual sprites and audio clips. 
 4. Press F3 and GODump.GlobalSettings.json will be updated with a new string of animations in the current scene.
 5. Delete the animations you don't want from the resulting pipe-separated ("|") string and save it (Get the animation name from step 3).
 6. Press F4 and all sprites in the animations you chose will be dumped into the `Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/Mods/GODump/Sprites` folder in .png format.
+7. If you have Unity Explorer,you can locate the `tk2dSpriteAnimation` in Inspector and use `GameManager.instance.StartCoroutine(GODump.Dump.DumpSpriteInUExplorer((tk2dSpriteAnimation)CurrentTarget,<dumpPath>)) `to dump it by using Unity Explorer console;
 
 ## Notice
 
