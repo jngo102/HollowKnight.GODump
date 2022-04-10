@@ -32,8 +32,8 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<PropertyGroup>
-		<!-- Set the path to the Hollow Knight folder -->
-		<ManagedPath>$(MSBuildProgramFiles32)/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/</ManagedPath>
+		<HollowKnightRefs>References</HollowKnightRefs>
+		<ExportDir>Output</ExportDir>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="Dump.cs" />
@@ -48,55 +48,55 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
-			<HintPath>$(ManagedPath)Assembly-CSharp.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="MMHOOK_Assembly-CSharp">
-			<HintPath>$(ManagedPath)MMHOOK_Assembly-CSharp.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/MMHOOK_Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="MonoMod.Utils">
-			<HintPath>$(ManagedPath)MonoMod.Utils.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/MonoMod.Utils.dll</HintPath>
 		</Reference>
 		<Reference Include="PlayMaker">
-			<HintPath>$(ManagedPath)PlayMaker.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/PlayMaker.dll</HintPath>
 		</Reference>
 		<Reference Include="MMHOOK_PlayMaker">
-			<HintPath>$(ManagedPath)MMHOOK_PlayMaker.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/MMHOOK_PlayMaker.dll</HintPath>
 		</Reference>
 		<Reference Include="System" />
 		<Reference Include="System.Core" />
 		<Reference Include="UnityEngine">
-			<HintPath>$(ManagedPath)UnityEngine.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/UnityEngine.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.AudioModule">
-			<HintPath>$(ManagedPath)UnityEngine.AudioModule.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/UnityEngine.AudioModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>$(ManagedPath)UnityEngine.CoreModule.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.ImageConversionModule">
-			<HintPath>$(ManagedPath)UnityEngine.ImageConversionModule.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/UnityEngine.ImageConversionModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath>$(ManagedPath)UnityEngine.InputLegacyModule.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/UnityEngine.InputLegacyModule.dll</HintPath>
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
-			<HintPath>$(ManagedPath)Newtonsoft.Json.dll</HintPath>
+			<HintPath>$(HollowKnightRefs)/Newtonsoft.Json.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<Import Project="$(MSBuildToolsPath)/Microsoft.CSharp.targets" />
 	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
-		<RemoveDir Directories="$(ManagedPath)$(TargetName)" />
-		<MakeDir Condition="!Exists('$(ManagedPath)Mods/$(TargetName)')" Directories="$(ManagedPath)Mods/$(TargetName);$(ManagedPath)Mods/$(TargetName)/zip" />
-		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ManagedPath)Mods/$(TargetName)" />
-		<Copy SourceFiles="$(TargetPath);ReadMe.md;$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ManagedPath)Mods/$(TargetName)/zip" />
-		<Delete Condition="Exists('$(ManagedPath)Mods/$(TargetName)/$(TargetName).zip')" Files="$(ManagedPath)Mods/$(TargetName)/$(TargetName).zip" />
-		<ZipDirectory SourceDirectory="$(ManagedPath)Mods/$(TargetName)/zip" DestinationFile="$(ManagedPath)Mods/$(TargetName)/$(TargetName).zip" />
-		<RemoveDir Directories="$(ManagedPath)Mods/$(TargetName)/zip" />
-		<GetFileHash Files="$(ManagedPath)Mods/$(TargetName)/$(TargetName).zip" Algorithm="SHA256">
+		<RemoveDir Directories="$(ExportDir)/$(TargetName)" />
+		<MakeDir Condition="!Exists('$(ExportDir)/$(TargetName)')" Directories="$(ExportDir)/$(TargetName);$(ExportDir)/$(TargetName)/zip" />
+		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/$(TargetName)" />
+		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb;ReadMe.md" DestinationFolder="$(ExportDir)/$(TargetName)/zip" />
+		<Delete Condition="Exists('$(ExportDir)/$(TargetName)/$(TargetName).zip')" Files="$(ExportDir)/$(TargetName)/$(TargetName).zip" />
+		<ZipDirectory SourceDirectory="$(ExportDir)/$(TargetName)/zip" DestinationFile="$(ExportDir)/$(TargetName)/$(TargetName).zip" />
+		<RemoveDir Directories="$(ExportDir)/$(TargetName)/zip" />
+		<GetFileHash Files="$(ExportDir)/$(TargetName)/$(TargetName).zip" Algorithm="SHA256">
 			<Output TaskParameter="Items" ItemName="FilesWithHashes" />
 		</GetFileHash>
-		<WriteLinesToFile File="$(ManagedPath)Mods/$(TargetName)/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
+		<WriteLinesToFile File="$(ExportDir)/$(TargetName)/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
 		<!-- Start Hollow Knight -->
-		<Exec Command="steam steam://rungameid/367520" />
+		<!--Exec Command="steam steam://rungameid/367520" /-->
 	</Target>
 </Project>

@@ -17,7 +17,7 @@ namespace GODump
         private static Settings _settings = new Settings();
         public static Settings Settings => _settings;
 
-        public override string GetVersion() => "1.0.0";
+        public override string GetVersion() => "1.0.0.1";
 
         public GODump() : base("Game Object Dump") {}
 
