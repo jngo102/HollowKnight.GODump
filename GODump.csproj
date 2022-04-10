@@ -62,8 +62,6 @@
 		<Reference Include="MMHOOK_PlayMaker">
 			<HintPath>$(HollowKnightRefs)/MMHOOK_PlayMaker.dll</HintPath>
 		</Reference>
-		<Reference Include="System" />
-		<Reference Include="System.Core" />
 		<Reference Include="UnityEngine">
 			<HintPath>$(HollowKnightRefs)/UnityEngine.dll</HintPath>
 		</Reference>
