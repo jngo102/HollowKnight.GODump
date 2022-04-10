@@ -155,7 +155,6 @@ namespace GODump
 
         private IEnumerator DumpSprites()
         {
-            int num = 0;
             foreach (var animation in _animations)
             {
                 int i = 0;
@@ -164,140 +163,7 @@ namespace GODump
                 foreach (tk2dSpriteAnimationClip clip in animation.clips)
                 {
                     i++;
-                    int j = -1;
-                    float Xmax = -10000f;
-                    float Ymax = -10000f;
-                    float Xmin = 10000f;
-                    float Ymin = 10000f;
-                    foreach (tk2dSpriteAnimationFrame frame in clip.frames)
-                    {
-                        tk2dSpriteDefinition tk2DSpriteDefinition = frame.spriteCollection.spriteDefinitions[frame.spriteId];
-                        Vector3[] position = tk2DSpriteDefinition.positions;
-
-                        float xMin = position.Min(v => v.x);
-                        float yMin = position.Min(v => v.y);
-                        float xMax = position.Max(v => v.x);
-                        float yMax = position.Max(v => v.y);
-
-                        Xmin = Xmin < xMin ? Xmin : xMin;
-                        Ymin = Ymin < yMin ? Ymin : yMin;
-                        Xmax = Xmax > xMax ? Xmax : xMax;
-                        Ymax = Ymax > yMax ? Ymax : yMax;
-
-                    }
-                    foreach (tk2dSpriteAnimationFrame frame in clip.frames)
-                    {
-                        j++;
-
-                        tk2dSpriteDefinition tk2dSpriteDefinition = frame.spriteCollection.spriteDefinitions[frame.spriteId];
-                        Vector2[] uv = tk2dSpriteDefinition.uvs;
-                        Vector3[] pos = tk2dSpriteDefinition.positions;
-                        Texture texture = tk2dSpriteDefinition.material.mainTexture;
-                        Texture2D texture2D = ((Texture2D)texture).Duplicate();
-
-                        string collectionName = frame.spriteCollection.spriteCollectionName;
-                        string atlasPath = Path.Combine(_spritesPath, animation.name, "0.Atlases", $"{collectionName}.png");
-                        string path1 = Path.Combine(_spritesPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + "_position.png");
-                        string framePathRelative = Path.Combine(animation.name, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + ".png");
-                        string framePath = Path.Combine(_spritesPath, framePathRelative);
-
-                        bool flipped = tk2dSpriteDefinition.flipped == tk2dSpriteDefinition.FlipMode.Tk2d;
-
-                        float xmin = pos.Min(v => v.x);
-                        float ymin = pos.Min(v => v.y);
-                        float xmax = pos.Max(v => v.x);
-                        float ymax = pos.Max(v => v.y);
-
-                        int x1 = (int)(uv.Min(v => v.x) * texture2D.width);
-                        int y1 = (int)(uv.Min(v => v.y) * texture2D.height);
-                        int x2 = (int)(uv.Max(v => v.x) * texture2D.width);
-                        int y2 = (int)(uv.Max(v => v.y) * texture2D.height);
-
-                        // symmetry transformation
-                        int x11 = x1;
-                        int y11 = y1;
-                        int x22 = x2;
-                        int y22 = y2;
-                        if (flipped)
-                        {
-                            x22 = y2 + x1 - y1;
-                            y22 = x2 - x1 + y1;
-                        }
-
-                        int x3 = (int)((Xmin - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y3 = (int)((Ymin - Ymin) / tk2dSpriteDefinition.texelSize.y);
-                        int x4 = (int)((Xmax - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y4 = (int)((Ymax - Ymin) / tk2dSpriteDefinition.texelSize.y);
-
-                        int x5 = (int)((xmin - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y5 = (int)((ymin - Ymin) / tk2dSpriteDefinition.texelSize.y);
-                        int x6 = (int)((xmax - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y6 = (int)((ymax - Ymin) / tk2dSpriteDefinition.texelSize.y);
-
-                        var uvPixel = new RectInt(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-                        var posBorder = new RectInt(x11 - x5 + x3, y11 - y5 + y3, x4 - x3 + 1, y4 - y3 + 1);
-                        var uvPixelR = new RectInt(x5 - x3, y5 - y3, x22 - x11 + 1, y22 - y11 + 1);
-
-
-                        if (!File.Exists(atlasPath))
-                        {
-                            texture2D.SaveToFile(atlasPath);
-                            num++;
-                        }
-
-                        if (GODump.Settings.DumpSpriteInfo)
-                        {
-                            spriteInfo.Add(frame.spriteId, x1, y1, uvPixelR.x, uvPixelR.y, uvPixelR.width, uvPixelR.height, collectionName, framePathRelative, flipped);
-                        }
-
-                        if (!File.Exists(framePath))
-                        {
-                            try
-                            {
-                                Texture2D subTexture = texture2D.SubTexture(uvPixel);
-                                if (flipped)
-                                {
-                                    SpriteDump.Tk2dFlip(ref subTexture);
-                                }
-                                if (GODump.Settings.FixSpriteSize)
-                                {
-                                    Texture2D fixedTexture = SpriteDump.FixSpriteSize(subTexture, uvPixelR, posBorder);
-                                    fixedTexture.SaveToFile(framePath);
-                                    DestroyImmediate(fixedTexture);
-                                }
-                                else
-                                {
-                                    subTexture.SaveToFile(framePath);
-                                }
-
-                                DestroyImmediate(subTexture);
-                                num++;
-                            }
-                            catch (Exception e)
-                            {
-                                GODump.Instance.LogError("Could not subtexture: " + e);
-                            }
-                        }
-
-                        DestroyImmediate(texture2D);
-                    }
-
-                    yield return new WaitForSeconds(0.5f);
-
-                    if (GODump.Settings.DumpAnimInfo && clip.frames.Length > 0)
-                    {
-                        string animInfoPath = Path.Combine(_spritesPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, "AnimInfo.json");
-                        Directory.CreateDirectory(Path.GetDirectoryName(animInfoPath));
-                        var animInfo = new AnimationInfo(clip.frames.Length, clip.fps, clip.wrapMode, clip.loopStart, clip.frames[0].spriteCollection.spriteCollectionName);
-                        using (FileStream fileStream = File.Create(animInfoPath))
-                        {
-                            using (StreamWriter streamWriter = new StreamWriter(fileStream))
-                            {
-                                string value = JsonConvert.SerializeObject(animInfo, Formatting.Indented);
-                                streamWriter.Write(value);
-                            }
-                        }
-                    }
+                    yield return DumpClip(clip, Path.Combine(_spritesPath, animation.name), spriteInfo, i);
                 }
 
                 if (GODump.Settings.DumpSpriteInfo)
@@ -316,8 +182,143 @@ namespace GODump
 
                 GODump.Instance.Log("End dumping sprites in tk2dSpriteAnimator [" + animation.name + "].");
             }
+        }
 
-            GODump.Instance.Log($"End dumping {num} sprites.");
+        public static IEnumerator DumpClip(tk2dSpriteAnimationClip clip, string dumpPath, 
+            SpriteInfo spriteInfo = null, int i = 0)
+        {
+            int j = -1;
+            float Xmax = -10000f;
+            float Ymax = -10000f;
+            float Xmin = 10000f;
+            float Ymin = 10000f;
+            foreach (tk2dSpriteAnimationFrame frame in clip.frames)
+            {
+                tk2dSpriteDefinition tk2DSpriteDefinition = frame.spriteCollection.spriteDefinitions[frame.spriteId];
+                Vector3[] position = tk2DSpriteDefinition.positions;
+
+                float xMin = position.Min(v => v.x);
+                float yMin = position.Min(v => v.y);
+                float xMax = position.Max(v => v.x);
+                float yMax = position.Max(v => v.y);
+
+                Xmin = Xmin < xMin ? Xmin : xMin;
+                Ymin = Ymin < yMin ? Ymin : yMin;
+                Xmax = Xmax > xMax ? Xmax : xMax;
+                Ymax = Ymax > yMax ? Ymax : yMax;
+
+            }
+            foreach (tk2dSpriteAnimationFrame frame in clip.frames)
+            {
+                j++;
+
+                tk2dSpriteDefinition tk2dSpriteDefinition = frame.spriteCollection.spriteDefinitions[frame.spriteId];
+                Vector2[] uv = tk2dSpriteDefinition.uvs;
+                Vector3[] pos = tk2dSpriteDefinition.positions;
+                Texture texture = tk2dSpriteDefinition.material.mainTexture;
+                Texture2D texture2D = ((Texture2D)texture).Duplicate();
+
+                string collectionName = frame.spriteCollection.spriteCollectionName;
+                string atlasPath = Path.Combine(dumpPath, "0.Atlases", $"{collectionName}.png");
+                string path1 = Path.Combine(dumpPath, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + "_position.png");
+                string framePathRelative = Path.Combine(dumpPath, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + ".png");
+                string framePath = Path.Combine(dumpPath, framePathRelative);
+
+                bool flipped = tk2dSpriteDefinition.flipped == tk2dSpriteDefinition.FlipMode.Tk2d;
+
+                float xmin = pos.Min(v => v.x);
+                float ymin = pos.Min(v => v.y);
+                float xmax = pos.Max(v => v.x);
+                float ymax = pos.Max(v => v.y);
+
+                int x1 = (int)(uv.Min(v => v.x) * texture2D.width);
+                int y1 = (int)(uv.Min(v => v.y) * texture2D.height);
+                int x2 = (int)(uv.Max(v => v.x) * texture2D.width);
+                int y2 = (int)(uv.Max(v => v.y) * texture2D.height);
+
+                // symmetry transformation
+                int x11 = x1;
+                int y11 = y1;
+                int x22 = x2;
+                int y22 = y2;
+                if (flipped)
+                {
+                    x22 = y2 + x1 - y1;
+                    y22 = x2 - x1 + y1;
+                }
+
+                int x3 = (int)((Xmin - Xmin) / tk2dSpriteDefinition.texelSize.x);
+                int y3 = (int)((Ymin - Ymin) / tk2dSpriteDefinition.texelSize.y);
+                int x4 = (int)((Xmax - Xmin) / tk2dSpriteDefinition.texelSize.x);
+                int y4 = (int)((Ymax - Ymin) / tk2dSpriteDefinition.texelSize.y);
+
+                int x5 = (int)((xmin - Xmin) / tk2dSpriteDefinition.texelSize.x);
+                int y5 = (int)((ymin - Ymin) / tk2dSpriteDefinition.texelSize.y);
+                int x6 = (int)((xmax - Xmin) / tk2dSpriteDefinition.texelSize.x);
+                int y6 = (int)((ymax - Ymin) / tk2dSpriteDefinition.texelSize.y);
+
+                var uvPixel = new RectInt(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+                var posBorder = new RectInt(x11 - x5 + x3, y11 - y5 + y3, x4 - x3 + 1, y4 - y3 + 1);
+                var uvPixelR = new RectInt(x5 - x3, y5 - y3, x22 - x11 + 1, y22 - y11 + 1);
+
+
+                if (!File.Exists(atlasPath))
+                {
+                    texture2D.SaveToFile(atlasPath);
+                }
+
+                if (GODump.Settings.DumpSpriteInfo && spriteInfo != null)
+                {
+                    spriteInfo.Add(frame.spriteId, x1, y1, uvPixelR.x, uvPixelR.y, uvPixelR.width, uvPixelR.height, collectionName, framePathRelative, flipped);
+                }
+
+                if (!File.Exists(framePath))
+                {
+                    try
+                    {
+                        Texture2D subTexture = texture2D.SubTexture(uvPixel);
+                        if (flipped)
+                        {
+                            SpriteDump.Tk2dFlip(ref subTexture);
+                        }
+                        if (GODump.Settings.FixSpriteSize)
+                        {
+                            Texture2D fixedTexture = SpriteDump.FixSpriteSize(subTexture, uvPixelR, posBorder);
+                            fixedTexture.SaveToFile(framePath);
+                            DestroyImmediate(fixedTexture);
+                        }
+                        else
+                        {
+                            subTexture.SaveToFile(framePath);
+                        }
+
+                        DestroyImmediate(subTexture);
+                    }
+                    catch (Exception e)
+                    {
+                        GODump.Instance.LogError("Could not subtexture: " + e);
+                    }
+                }
+
+                DestroyImmediate(texture2D);
+            }
+
+            yield return new WaitForSeconds(0.5f);
+
+            if (GODump.Settings.DumpAnimInfo && clip.frames.Length > 0)
+            {
+                string animInfoPath = Path.Combine(dumpPath, string.Format("{0:D3}", i) + "." + clip.name, "AnimInfo.json");
+                Directory.CreateDirectory(Path.GetDirectoryName(animInfoPath));
+                var animInfo = new AnimationInfo(clip.frames.Length, clip.fps, clip.wrapMode, clip.loopStart, clip.frames[0].spriteCollection.spriteCollectionName);
+                using (FileStream fileStream = File.Create(animInfoPath))
+                {
+                    using (StreamWriter streamWriter = new StreamWriter(fileStream))
+                    {
+                        string value = JsonConvert.SerializeObject(animInfo, Formatting.Indented);
+                        streamWriter.Write(value);
+                    }
+                }
+            }
         }
 
         /// Locate tk2dSpriteAnimation in UExplorer and use
@@ -325,165 +326,30 @@ namespace GODump
         /// to dump it by using Unity Explorer console;
         public static IEnumerator DumpSpriteInUExplorer(tk2dSpriteAnimation animation, string dumpPath)
         {
-            int num = 0;
-                int i = 0;
-                var spriteInfo = new SpriteInfo();
-                GODump.Instance.Log("Begin dumping sprites in tk2dSpriteAnimator [" + animation.name + "].");
-                foreach (tk2dSpriteAnimationClip clip in animation.clips)
+            int i = 0;
+            var spriteInfo = new SpriteInfo();
+            GODump.Instance.Log("Begin dumping sprites in tk2dSpriteAnimator [" + animation.name + "].");
+            foreach (tk2dSpriteAnimationClip clip in animation.clips)
+            {
+                i++;
+                yield return DumpClip(clip, Path.Combine(dumpPath, animation.name), spriteInfo, i);
+            }
+
+            if (GODump.Settings.DumpSpriteInfo)
+            {
+                string spriteInfoPath = Path.Combine(dumpPath, animation.name, "0.Atlases", "SpriteInfo.json");
+                Directory.CreateDirectory(Path.GetDirectoryName(spriteInfoPath));
+                using (FileStream fileStream = File.Create(spriteInfoPath))
                 {
-                    i++;
-                    int j = -1;
-                    float Xmax = -10000f;
-                    float Ymax = -10000f;
-                    float Xmin = 10000f;
-                    float Ymin = 10000f;
-                    foreach (tk2dSpriteAnimationFrame frame in clip.frames)
+                    using (StreamWriter streamWriter = new StreamWriter(fileStream))
                     {
-                        tk2dSpriteDefinition tk2DSpriteDefinition = frame.spriteCollection.spriteDefinitions[frame.spriteId];
-                        Vector3[] position = tk2DSpriteDefinition.positions;
-
-                        float xMin = position.Min(v => v.x);
-                        float yMin = position.Min(v => v.y);
-                        float xMax = position.Max(v => v.x);
-                        float yMax = position.Max(v => v.y);
-
-                        Xmin = Xmin < xMin ? Xmin : xMin;
-                        Ymin = Ymin < yMin ? Ymin : yMin;
-                        Xmax = Xmax > xMax ? Xmax : xMax;
-                        Ymax = Ymax > yMax ? Ymax : yMax;
-
-                    }
-                    foreach (tk2dSpriteAnimationFrame frame in clip.frames)
-                    {
-                        j++;
-
-                        tk2dSpriteDefinition tk2dSpriteDefinition = frame.spriteCollection.spriteDefinitions[frame.spriteId];
-                        Vector2[] uv = tk2dSpriteDefinition.uvs;
-                        Vector3[] pos = tk2dSpriteDefinition.positions;
-                        Texture texture = tk2dSpriteDefinition.material.mainTexture;
-                        Texture2D texture2D = ((Texture2D)texture).Duplicate();
-
-                        string collectionName = frame.spriteCollection.spriteCollectionName;
-                        string atlasPath = Path.Combine(dumpPath, animation.name, "0.Atlases", $"{collectionName}.png");
-                        string path1 = Path.Combine(dumpPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + "_position.png");
-                        string framePathRelative = Path.Combine(animation.name, string.Format("{0:D3}", i) + "." + clip.name, string.Format("{0:D3}", i) + "-" + string.Format("{0:D2}", j) + "-" + string.Format("{0:D3}", frame.spriteId) + ".png");
-                        string framePath = Path.Combine(dumpPath, framePathRelative);
-
-                        bool flipped = tk2dSpriteDefinition.flipped == tk2dSpriteDefinition.FlipMode.Tk2d;
-
-                        float xmin = pos.Min(v => v.x);
-                        float ymin = pos.Min(v => v.y);
-                        float xmax = pos.Max(v => v.x);
-                        float ymax = pos.Max(v => v.y);
-
-                        int x1 = (int)(uv.Min(v => v.x) * texture2D.width);
-                        int y1 = (int)(uv.Min(v => v.y) * texture2D.height);
-                        int x2 = (int)(uv.Max(v => v.x) * texture2D.width);
-                        int y2 = (int)(uv.Max(v => v.y) * texture2D.height);
-
-                        // symmetry transformation
-                        int x11 = x1;
-                        int y11 = y1;
-                        int x22 = x2;
-                        int y22 = y2;
-                        if (flipped)
-                        {
-                            x22 = y2 + x1 - y1;
-                            y22 = x2 - x1 + y1;
-                        }
-
-                        int x3 = (int)((Xmin - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y3 = (int)((Ymin - Ymin) / tk2dSpriteDefinition.texelSize.y);
-                        int x4 = (int)((Xmax - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y4 = (int)((Ymax - Ymin) / tk2dSpriteDefinition.texelSize.y);
-
-                        int x5 = (int)((xmin - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y5 = (int)((ymin - Ymin) / tk2dSpriteDefinition.texelSize.y);
-                        int x6 = (int)((xmax - Xmin) / tk2dSpriteDefinition.texelSize.x);
-                        int y6 = (int)((ymax - Ymin) / tk2dSpriteDefinition.texelSize.y);
-
-                        var uvPixel = new RectInt(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-                        var posBorder = new RectInt(x11 - x5 + x3, y11 - y5 + y3, x4 - x3 + 1, y4 - y3 + 1);
-                        var uvPixelR = new RectInt(x5 - x3, y5 - y3, x22 - x11 + 1, y22 - y11 + 1);
-
-
-                        if (!File.Exists(atlasPath))
-                        {
-                            texture2D.SaveToFile(atlasPath);
-                            num++;
-                        }
-
-                        if (GODump.Settings.DumpSpriteInfo)
-                        {
-                            spriteInfo.Add(frame.spriteId, x1, y1, uvPixelR.x, uvPixelR.y, uvPixelR.width, uvPixelR.height, collectionName, framePathRelative, flipped);
-                        }
-
-                        if (!File.Exists(framePath))
-                        {
-                            try
-                            {
-                                Texture2D subTexture = texture2D.SubTexture(uvPixel);
-                                if (flipped)
-                                {
-                                    SpriteDump.Tk2dFlip(ref subTexture);
-                                }
-                                if (GODump.Settings.FixSpriteSize)
-                                {
-                                    Texture2D fixedTexture = SpriteDump.FixSpriteSize(subTexture, uvPixelR, posBorder);
-                                    fixedTexture.SaveToFile(framePath);
-                                    DestroyImmediate(fixedTexture);
-                                }
-                                else
-                                {
-                                    subTexture.SaveToFile(framePath);
-                                }
-
-                                DestroyImmediate(subTexture);
-                                num++;
-                            }
-                            catch (Exception e)
-                            {
-                                GODump.Instance.LogError("Could not subtexture: " + e);
-                            }
-                        }
-
-                        DestroyImmediate(texture2D);
-                    }
-
-                    yield return new WaitForSeconds(0.5f);
-
-                    if (GODump.Settings.DumpAnimInfo && clip.frames.Length > 0)
-                    {
-                        string animInfoPath = Path.Combine(dumpPath, animation.name, string.Format("{0:D3}", i) + "." + clip.name, "AnimInfo.json");
-                        Directory.CreateDirectory(Path.GetDirectoryName(animInfoPath));
-                        var animInfo = new AnimationInfo(clip.frames.Length, clip.fps, clip.wrapMode, clip.loopStart, clip.frames[0].spriteCollection.spriteCollectionName);
-                        using (FileStream fileStream = File.Create(animInfoPath))
-                        {
-                            using (StreamWriter streamWriter = new StreamWriter(fileStream))
-                            {
-                                string value = JsonConvert.SerializeObject(animInfo, Formatting.Indented);
-                                streamWriter.Write(value);
-                            }
-                        }
+                        string value = JsonConvert.SerializeObject(spriteInfo, Formatting.Indented);
+                        streamWriter.Write(value);
                     }
                 }
+            }
 
-                if (GODump.Settings.DumpSpriteInfo)
-                {
-                    string spriteInfoPath = Path.Combine(dumpPath, animation.name, "0.Atlases", "SpriteInfo.json");
-                    Directory.CreateDirectory(Path.GetDirectoryName(spriteInfoPath));
-                    using (FileStream fileStream = File.Create(spriteInfoPath))
-                    {
-                        using (StreamWriter streamWriter = new StreamWriter(fileStream))
-                        {
-                            string value = JsonConvert.SerializeObject(spriteInfo, Formatting.Indented);
-                            streamWriter.Write(value);
-                        }
-                    }
-                }
-
-                GODump.Instance.Log("End dumping sprites in tk2dSpriteAnimator [" + animation.name + "].");
-            GODump.Instance.Log($"End dumping {num} sprites.");
+            GODump.Instance.Log("End dumping sprites in tk2dSpriteAnimator [" + animation.name + "].");
         }
         private IEnumerator DumpAudio()
         {
