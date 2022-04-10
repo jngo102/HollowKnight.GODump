@@ -1,51 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-		<ProjectGuid>{334307BF-127A-4C02-918A-06443B9781C8}</ProjectGuid>
-		<OutputType>Library</OutputType>
-		<AppDesignerFolder>Properties</AppDesignerFolder>
 		<RootNamespace>GODump</RootNamespace>
 		<AssemblyName>GODump</AssemblyName>
-		<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-		<FileAlignment>512</FileAlignment>
-		<Deterministic>true</Deterministic>
+		<TargetFramework>net472</TargetFramework>
+		<AssemblyTitle>GODump</AssemblyTitle>
+		<Product>GODump</Product>
+		<Description>Unity Explorer wrapper</Description>
+		<Copyright>Copyright © jngo102, HKLab, ygsbzr 2022</Copyright>
+		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+		<FileVersion>1.0.0.1</FileVersion>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
 		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<OutputPath>bin\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup>
 		<HollowKnightRefs>References</HollowKnightRefs>
+		<!-- Change this to the path where you want the ready-to-upload exports to be -->
 		<ExportDir>Output</ExportDir>
 	</PropertyGroup>
-	<ItemGroup>
-		<Compile Include="Dump.cs" />
-		<Compile Include="Extensions.cs" />
-		<Compile Include="GODump.cs" />
-		<Compile Include="Properties\AssemblyInfo.cs" />
-		<Compile Include="SaveWav.cs" />
-		<Compile Include="Settings.cs" />
-		<Compile Include="SpriteDump.cs" />
-		<Compile Include="Structs.cs" />
-		<None Include="ReadMe.md" />
-	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
 			<HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll</HintPath>
@@ -81,7 +50,6 @@
 			<HintPath>$(HollowKnightRefs)/Newtonsoft.Json.dll</HintPath>
 		</Reference>
 	</ItemGroup>
-	<Import Project="$(MSBuildToolsPath)/Microsoft.CSharp.targets" />
 	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
 		<RemoveDir Directories="$(ExportDir)/$(TargetName)" />
 		<MakeDir Condition="!Exists('$(ExportDir)/$(TargetName)')" Directories="$(ExportDir)/$(TargetName);$(ExportDir)/$(TargetName)/zip" />
